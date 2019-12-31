@@ -43,14 +43,16 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 public class EncodeQRExcel {
 	public static void main(String[] args) throws Exception {
 
-		generateQRCodeFromExcel(new File("Demo.xlsx"));
+		generateQRCodeFromExcel(new File("StudentList.xlsx"));
 
 	}
 
 	private static void generateQRCodeFromExcel(File excelFile) throws Exception {
 		int totalRecords = 0, QRCodeGenrerated = 0, QRCodeNotGenerated = 0;
 		// Specify the URL or text to generate QR Code
-		String URL = "http://117.239.83.200:8102/counselling/getresult.php?id=";
+		//String URL = "https://charusat.ac.in/getResultByID.php?id=";
+		//String URL = "https://charusat.ac.in/";
+		String URL;
 		// Open the logo
 		File logo = new File("charusat50x50.png");
 		// Creating a Workbook from an Excel file (.xls or .xlsx)
@@ -88,6 +90,11 @@ public class EncodeQRExcel {
 					String cellValue = dataFormatter.formatCellValue(cell);
 					String ID = cellValue;
 					// Uncomment following for the color QR code generator with Logo
+					if(!ID.contains("DR")) {
+						URL = "https://charusat.ac.in/getResultByID.php?id=";
+					}else {
+						URL = "https://charusat.ac.in/getPHDResult.php?id=";
+					}
 					File destFile = encodeQRCode(URL, destDir, ID, logo, 300);
 					// Following is for Black and White QR Code without Logo
 					// File destFile = createQRImage(new File("d:/" + destDir + "/" + ID + ".png"),
@@ -124,9 +131,9 @@ public class EncodeQRExcel {
 			return fileDest;
 		}
 		Map<EncodeHintType, Object> hints = new EnumMap<EncodeHintType, Object>(EncodeHintType.class);
-		hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+		hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
 		hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
-		hints.put(EncodeHintType.MARGIN, 2); /* default = 4 */
+		hints.put(EncodeHintType.MARGIN, 0); /* default = 4 */
 
 		QRCodeWriter writer = new QRCodeWriter();
 		BitMatrix bitMatrix = null;
@@ -137,11 +144,11 @@ public class EncodeQRExcel {
 			bitMatrix = writer.encode(url + ID, BarcodeFormat.QR_CODE, size, size, hints);
 
 			MatrixToImageConfig config = new MatrixToImageConfig(0xFF054E9A, MatrixToImageConfig.WHITE);
+			
 
 			// Load QR image
 			BufferedImage qrImage = MatrixToImageWriter.toBufferedImage(bitMatrix, config);
 
-			// Load logo image
 			BufferedImage logoImage = ImageIO.read(logo);
 
 			// Calculate the delta height and width between QR code and logo
@@ -208,6 +215,7 @@ public class EncodeQRExcel {
 
 		Graphics2D graphics = (Graphics2D) image.getGraphics();
 		graphics.setColor(Color.WHITE);
+		
 		graphics.fillRect(0, 0, matrixWidth, matrixWidth);
 		// Paint and save the image using the ByteMatrix
 		graphics.setColor(Color.BLACK);
